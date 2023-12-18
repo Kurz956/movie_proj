@@ -7,16 +7,15 @@ class Movie(models.Model):
     rating = models.IntegerField()
     year = models.IntegerField(null=True)
     budget = models.IntegerField(default=10000000)
-    slug = models.SlugField(default='', null=False)
+    slug = models.SlugField(default='', null=False, db_index=True)
 
 
     def save(self, *args, **kwargs):
-        if not self.slug:
-            self.slug = slugify(self.name, allow_unicode=True)
+        self.slug = slugify(self.name)
         super(Movie, self).save(*args, **kwargs)
 
     def get_url(self):
-        return reverse('movie-detail', args=(self.id,))
+        return reverse('movie-detail', args=(self.slug,))
     def __str__(self):
         return f'{self.name}  - {self.rating}%'
 
