@@ -1,7 +1,8 @@
 from django.contrib import admin, messages
-from .models import Movie
+from .models import Movie, Director
 from django.db.models import QuerySet
 # Register your models here.
+admin.site.register(Director)
 
 class BudgetFilter(admin.SimpleListFilter):
     title = 'фильтр по бюджету'
