@@ -1,8 +1,17 @@
 from django.contrib import admin, messages
-from .models import Movie, Director
+from .models import Movie, Director, Actor, DressingRoom
 from django.db.models import QuerySet
 # Register your models here.
-admin.site.register(Director)
+
+
+admin.site.register(Actor)
+#admin.site.register(DressingRoom)
+#admin.site.register(Director)
+#admin.site.register(Movie, MovieAdmin) # принудительная регистрация
+@admin.register(DressingRoom) # рега через декоратор
+class DressingRoomAdmin(admin.ModelAdmin):
+    list_display = ['floor', 'number', 'actor'] # первое поле будет ссылкой на объект и не может быть в редакируемом поле снизу
+
 
 class BudgetFilter(admin.SimpleListFilter):
     title = 'фильтр по бюджету'
@@ -25,8 +34,6 @@ class BudgetFilter(admin.SimpleListFilter):
         if self.value()=='>=150':
             return queryset.filter(budget__gte=150)
         return queryset
-
-
 class RatingFilter(admin.SimpleListFilter):
     title = 'фильтр по рейтингу'
     parameter_name = 'rating'
@@ -49,20 +56,27 @@ class RatingFilter(admin.SimpleListFilter):
            return queryset.filter(rating__gte=80)
         return queryset
 
+@admin.register(Director)
+class DirectorAdmin(admin.ModelAdmin):
+    prepopulated_fields = {'slug': ('first_name', 'last_name')}
+    list_display = ['first_name', 'last_name', 'slug']
+    list_editable = ['slug']
+
 
 @admin.register(Movie) # рега через декоратор
 class MovieAdmin(admin.ModelAdmin):
     #fields = ['name', 'rating']
     #exclude = ['slug']
-    #readonly_fields = ['budget']
+    #readonly_fields = ['budget'] поле только для чтения, без возможности изменения
     prepopulated_fields = {'slug': ('name', )}
-    list_display = ['name', 'rating', 'currency', 'budget', 'rating_status'] # первое поле будет ссылкой на объект и не может быть в редакируемом поле снизу
-    list_editable = ['rating', 'currency', 'budget']
+    list_display = ['name', 'rating', 'director', 'budget', 'rating_status'] # первое поле будет ссылкой на объект и не может быть в редакируемом поле снизу
+    list_editable = ['rating', 'director', 'budget']
     #ordering = ['-rating', '-name']
     list_per_page = 10
     actions = ['set_dollars', 'set_euros']
     search_fields = ['name__istartswith', 'rating']
     list_filter = ['currency', RatingFilter, BudgetFilter]
+    filter_horizontal = ['actors']
 
     @admin.display(ordering='rating', description='Статус')
     def rating_status(self, mov:Movie):
@@ -87,4 +101,3 @@ class MovieAdmin(admin.ModelAdmin):
         messages.ERROR
         )
 
-#admin.site.register(Movie, MovieAdmin) # принудительная регистрация
