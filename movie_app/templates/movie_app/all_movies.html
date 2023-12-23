@@ -3,6 +3,8 @@
 {% block title %} Все Фильмы {% endblock title %}
 
 {% block content %}
+  <h2><a href="{% url 'directors_list' %}">Список всех режиссеров</a></h2>
+  <h2><a href="{% url 'actors_list' %}">Список всех актеров</a></h2>
   <h2>Список всех фильмов</h2>
   <ul>
     {% for movie in movies %}
